@@ -1,0 +1,170 @@
+"""Model card generation.
+
+A model card is a documentation artifact describing the system's purpose,
+inputs and outputs.
+
+A model card documents a machine learning model for its consumers and
+reviewers. This module defines a small, opinionated card structure and
+renders it as Markdown using :mod:`ai_governance_kit.yaml_min` for YAML
+input and output.
+"""
+
+from __future__ import annotations
+
+from dataclasses import asdict, dataclass, field
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+from . import yaml_min
+
+_REQUIRED_FIELDS = ("name", "developer", "intended_use")
+
+
+@dataclass
+class ModelCard:
+    """A structured model card."""
+
+    name: str
+    developer: str
+    intended_use: str
+    version: str = "0.1.0"
+    license: str = "Unspecified"
+    summary: str = ""
+    out_of_scope_uses: List[str] = field(default_factory=list)
+    training_data: Dict[str, Any] = field(default_factory=dict)
+    evaluation_results: List[Dict[str, Any]] = field(default_factory=list)
+    limitations: str = ""
+    ethical_considerations: str = ""
+    contact: str = ""
+
+    def __post_init__(self) -> None:
+        if not self.name:
+            raise ValueError("ModelCard requires a non-empty 'name'")
+        if not self.developer:
+            raise ValueError("ModelCard requires a non-empty 'developer'")
+        if not self.intended_use:
+            raise ValueError("ModelCard requires a non-empty 'intended_use'")
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "ModelCard":
+        """Build a card from a plain dictionary, ignoring unknown keys."""
+        known = {
+            "name",
+            "version",
+            "developer",
+            "license",
+            "summary",
+            "intended_use",
+            "out_of_scope_uses",
+            "training_data",
+            "evaluation_results",
+            "limitations",
+            "ethical_considerations",
+            "contact",
+        }
+        filtered = {k: v for k, v in data.items() if k in known}
+        return cls(**filtered)
+
+    @classmethod
+    def load(cls, path: str) -> "ModelCard":
+        """Load a model card from a YAML file."""
+        data = yaml_min.load_file(path)
+        if not isinstance(data, dict):
+            raise ValueError(f"{path}: top level of a model card must be a mapping")
+        return cls.from_dict(data)
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Return the card as a plain dictionary."""
+        return asdict(self)
+
+    def to_yaml(self) -> str:
+        """Serialize the card to YAML text."""
+        return yaml_min.dumps(self.to_dict())
+
+    def render(self) -> str:
+        """Render the card as a Markdown document."""
+        lines: List[str] = []
+        title = f"Model Card: {self.name}"
+        lines.append(f"# {title}")
+        lines.append("")
+        if self.version:
+            lines.append(f"**Version:** {self.version}")
+        lines.append(f"**Developer:** {self.developer}")
+        lines.append(f"**License:** {self.license}")
+        if self.contact:
+            lines.append(f"**Contact:** {self.contact}")
+        lines.append("")
+
+        if self.summary:
+            lines.append("## Summary")
+            lines.append("")
+            lines.append(self.summary)
+            lines.append("")
+
+        lines.append("## Intended Use")
+        lines.append("")
+        lines.append(self.intended_use)
+        lines.append("")
+
+        if self.out_of_scope_uses:
+            lines.append("## Out-of-Scope Uses")
+            lines.append("")
+            for item in self.out_of_scope_uses:
+                lines.append(f"- {item}")
+            lines.append("")
+
+        if self.training_data:
+            lines.append("## Training Data")
+            lines.append("")
+            for key, value in self.training_data.items():
+                lines.append(f"- **{key}:** {value}")
+            lines.append("")
+
+        if self.evaluation_results:
+            lines.append("## Evaluation Results")
+            lines.append("")
+            keys = self._evaluation_keys()
+            lines.append("| " + " | ".join(keys) + " |")
+            lines.append("|" + "|".join([" --- "] * len(keys)) + "|")
+            for entry in self.evaluation_results:
+                cells = [str(entry.get(key, "")) for key in keys]
+                lines.append("| " + " | ".join(cells) + " |")
+            lines.append("")
+
+        if self.limitations:
+            lines.append("## Limitations")
+            lines.append("")
+            lines.append(self.limitations)
+            lines.append("")
+
+        if self.ethical_considerations:
+            lines.append("## Ethical Considerations")
+            lines.append("")
+            lines.append(self.ethical_considerations)
+            lines.append("")
+
+        lines.append("---")
+        lines.append("")
+        lines.append(
+            "Generated by `ai-governance-kit` (model_card). "
+            "Review and approve before distribution."
+        )
+        lines.append("")
+        return "\n".join(lines)
+
+    def _evaluation_keys(self) -> List[str]:
+        """Union of keys across evaluation entries, in stable order."""
+        keys: List[str] = []
+        seen = set()
+        for entry in self.evaluation_results:
+            if not isinstance(entry, dict):
+                continue
+            for key in entry:
+                if key not in seen:
+                    seen.add(key)
+                    keys.append(key)
+        return keys or ["result"]
+
+    def save_markdown(self, path: str) -> None:
+        """Write the rendered Markdown card to ``path``."""
+        Path(path).write_text(self.render(), encoding="utf-8")

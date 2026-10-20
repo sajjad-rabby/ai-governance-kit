@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-governance-kit"
+version = "0.1.0"
+description = "Stdlib-only toolkit for AI governance: model cards, NIST AI RMF risk registers, EU AI Act triage, GxP checklists, and tamper-evident audit logs."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Sajjad Rabby" }]
+keywords = [
+    "ai-governance",
+    "model-card",
+    "eu-ai-act",
+    "nist-ai-rmf",
+    "audit-log",
+    "compliance",
+    "gxp",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Healthcare Industry",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Security",
+    "Typing :: Typed",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.urls]
+Homepage = "https://github.com/Sunyiad/ai-governance-kit"
+Repository = "https://github.com/Sunyiad/ai-governance-kit"
+Issues = "https://github.com/Sunyiad/ai-governance-kit/issues"
+
+[project.scripts]
+govkit = "ai_governance_kit.cli:main"
+
+[tool.setuptools]
+packages = ["ai_governance_kit"]
+
+[tool.setuptools.package-data]
+ai_governance_kit = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

@@ -1,0 +1,93 @@
+[
+  {
+    "id": "R-001",
+    "title": "Training data provenance undocumented",
+    "description": "No durable record links training rows to their source tables, so a deletion request cannot be traced to the model.",
+    "ai_rmf_function": "Map",
+    "category": "Data governance",
+    "severity": 4,
+    "likelihood": 4,
+    "mitigations": [
+      "Record dataset lineage from warehouse table to training row",
+      "Publish a data statement naming sources and consent basis",
+      "Add a deletion-request playbook that reaches trained artefacts"
+    ],
+    "owner": "Data team",
+    "status": "Open"
+  },
+  {
+    "id": "R-002",
+    "title": "No drift monitoring in production",
+    "description": "Input distribution shifts are not detected, so accuracy decay would go unnoticed until a customer complaint.",
+    "ai_rmf_function": "Measure",
+    "category": "Monitoring",
+    "severity": 5,
+    "likelihood": 3,
+    "mitigations": [
+      "Schedule weekly PSI checks on top input features",
+      "Alert when ROC AUC on a rolling holdout drops below 0.78",
+      "Document the retrain trigger and its owner"
+    ],
+    "owner": "MLOps",
+    "status": "Open"
+  },
+  {
+    "id": "R-003",
+    "title": "Third-party model terms unclear",
+    "description": "An upstream fine-tuned checkpoint may forbid our intended commercial use, which would block release.",
+    "ai_rmf_function": "Govern",
+    "category": "Legal",
+    "severity": 5,
+    "likelihood": 2,
+    "mitigations": [
+      "Obtain written confirmation of the upstream licence terms",
+      "Keep an inventory of third-party components and their licences"
+    ],
+    "owner": "Legal",
+    "status": "In progress"
+  },
+  {
+    "id": "R-004",
+    "title": "No rollback path once ranked lists are sent downstream",
+    "description": "A bad model release would keep ranking accounts until the batch job is manually stopped.",
+    "ai_rmf_function": "Manage",
+    "category": "Operations",
+    "severity": 4,
+    "likelihood": 3,
+    "mitigations": [
+      "Pin the previous model artifact and keep it loadable",
+      "Add a one-command kill switch for the ranking batch job"
+    ],
+    "owner": "MLOps",
+    "status": "Open"
+  },
+  {
+    "id": "R-005",
+    "title": "Evaluation set overlaps the training window",
+    "description": "The holdout shares calendar months with training data, inflating the reported ROC AUC.",
+    "ai_rmf_function": "Measure",
+    "category": "Evaluation",
+    "severity": 3,
+    "likelihood": 4,
+    "mitigations": [
+      "Rebuild the holdout as a strictly temporal split",
+      "Publish both random and temporal metrics side by side"
+    ],
+    "owner": "ML team",
+    "status": "Open"
+  },
+  {
+    "id": "R-006",
+    "title": "Minor dashboard tooltip truncates",
+    "description": "A tooltip clips on viewports narrower than 360px; cosmetic only.",
+    "ai_rmf_function": "Manage",
+    "category": "Usability",
+    "severity": 1,
+    "likelihood": 1,
+    "mitigations": [
+      "Widen the tooltip container"
+    ],
+    "owner": "Frontend",
+    "status": "Open"
+  }
+]

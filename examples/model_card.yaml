@@ -1,0 +1,40 @@
+name: churn-classifier
+version: 2.1.0
+developer: Example Corp
+license: Proprietary
+summary: >-
+  Gradient-boosted decision trees over 90 days of per-account activity events.
+  Ranked nightly and surfaced in a dashboard that humans review; the model
+  never blocks or cancels an account on its own.
+intended_use: >-
+  Rank accounts by predicted 30-day churn risk so retention staff contact them
+  in the right order. Input is a table of account-level behavioural events.
+out_of_scope_uses:
+  - Creditworthiness or any lending decision
+  - Automated account suspension or price changes
+  - Employment or promotion decisions
+training_data:
+  rows: 210000
+  window: 2024-01 to 2025-06
+  source: internal product analytics warehouse
+  labels: observed churn within 30 days
+evaluation_results:
+  - split: random_holdout
+    n: 20000
+    roc_auc: 0.87
+    brier: 0.11
+  - split: temporal_backtest
+    n: 20000
+    roc_auc: 0.82
+    brier: 0.13
+limitations: >-
+  Performance drops sharply for accounts with fewer than three recorded events,
+  which are common in the first two weeks of a trial. The temporal backtest also
+  shows a 0.05 ROC AUC decline versus the random holdout, suggesting mild
+  overfitting to the training period. Scores are not calibrated probabilities
+  and should not be read as such.
+ethical_considerations: >-
+  The model ranks attention, it does not allocate it. Low-scoring accounts must
+  never be excluded from service, pricing, or support. Ranked lists are reviewed
+  by retention staff, and overrides are logged.
+contact: ml-governance@example.com
