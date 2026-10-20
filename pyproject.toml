@@ -41,9 +41,9 @@ dependencies = []
 dev = ["pytest>=7.0"]
 
 [project.urls]
-Homepage = "https://github.com/Sunyiad/ai-governance-kit"
-Repository = "https://github.com/Sunyiad/ai-governance-kit"
-Issues = "https://github.com/Sunyiad/ai-governance-kit/issues"
+Homepage = "https://github.com/sajjad-rabby/ai-governance-kit"
+Repository = "https://github.com/sajjad-rabby/ai-governance-kit"
+Issues = "https://github.com/sajjad-rabby/ai-governance-kit/issues"
 
 [project.scripts]
 govkit = "ai_governance_kit.cli:main"

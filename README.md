@@ -31,7 +31,7 @@ to audit — which is most of the actual work.
 No installation needed:
 
 ```bash
-git clone https://github.com/Sunyiad/ai-governance-kit.git
+git clone https://github.com/sajjad-rabby/ai-governance-kit.git
 cd ai-governance-kit
 python examples/demo_end_to_end.py
 ```
